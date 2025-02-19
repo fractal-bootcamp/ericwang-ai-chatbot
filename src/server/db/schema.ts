@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { index, int, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
 
 /**
@@ -12,19 +12,47 @@ import { index, int, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
  */
 export const createTable = sqliteTableCreator((name) => `ai-chatbot_${name}`);
 
-export const posts = createTable(
-  "post",
+export const session = createTable(
+  "session",
   {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: text("name", { length: 256 }),
+    id: text("id").notNull().primaryKey(),
     createdAt: int("created_at", { mode: "timestamp" })
       .default(sql`(unixepoch())`)
       .notNull(),
     updatedAt: int("updated_at", { mode: "timestamp" }).$onUpdate(
       () => new Date()
+      
     ),
   },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+  (session) => ({}) 
 );
+
+export const messages = createTable(
+  "messages",
+  {
+    id: text("id").notNull().primaryKey(),
+    content: text("content").notNull(),
+    role: text("role", { enum: ['user', 'assistant', 'system', 'data'] }).notNull(),
+    sessionId: text("sessionId").references(() => session.id).notNull(),
+    createdAt: int("created_at", { mode: "timestamp" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: int("updated_at", { mode: "timestamp" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (messages) => ({
+    sessionIdIndex: index("chat_id_idx").on(messages.sessionId),
+  }),
+);
+
+export const sessionRelations = relations(session, ({ many }) => ({
+  messages: many(messages),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  session: one(session, {
+    fields: [messages.sessionId],
+    references: [session.id],
+  }),
+}));
