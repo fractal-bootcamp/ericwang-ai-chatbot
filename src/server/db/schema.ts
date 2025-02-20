@@ -32,7 +32,7 @@ export const messages = createTable(
   {
     id: text("id").notNull().primaryKey(),
     content: text("content").notNull(),
-    role: text("role", { enum: ['user', 'assistant', 'system', 'data'] }).notNull(),
+    role: text("role").notNull(),
     sessionId: text("sessionId").references(() => session.id).notNull(),
     createdAt: int("created_at", { mode: "timestamp" })
       .default(sql`CURRENT_TIMESTAMP`)
