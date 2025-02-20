@@ -2,18 +2,20 @@ import { openai } from '@ai-sdk/openai';
 import { Message, streamText, appendResponseMessages, createIdGenerator } from 'ai';
 import { saveChat } from '../../../tools/chat-store';
 import { tools } from '~/ai/tools';
+import { Model } from '~/app/store/useModelStore';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages, id } = await req.json() as { 
+  const { messages, id, model } = await req.json() as { 
     messages: Message[]; 
     id: string;
+    model: Model;
   };
-
+  
   const result = streamText({
-    model: openai('gpt-4-turbo'),
+    model: openai(model),
     system: 'You are a helpful assistant.',
     messages,
     tools,

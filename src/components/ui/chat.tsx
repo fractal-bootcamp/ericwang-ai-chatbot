@@ -5,16 +5,19 @@ import { createIdGenerator } from 'ai';
 import { ChatMessage } from './chat-message';
 import { MessageInput } from './message-input';
 import ChatHeader from './chat-header';
+import { useModelStore } from '~/app/store/useModelStore';
 
 export default function Chat({
   id,
   initialMessages,
 }: { id?: string | undefined; initialMessages?: Message[] } = {}) {
+  const { model } = useModelStore()
   const { input, handleInputChange, handleSubmit, messages } = useChat({
     maxSteps: 5,
     id,
     initialMessages, 
     sendExtraMessageFields: true,
+    body: { model },
     generateId: createIdGenerator({
       prefix: 'msgc',
       size: 16,
