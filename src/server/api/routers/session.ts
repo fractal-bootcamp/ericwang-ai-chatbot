@@ -19,6 +19,9 @@ export const sessionRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     const sessions = await ctx.db.query.session.findMany({
       orderBy: (session, { desc }) => [desc(session.createdAt)],
+      with: {
+        messages: true,
+      }
     });
     
     return sessions ?? null;
