@@ -6,6 +6,7 @@ import { ChatMessage } from './chat-message';
 import { MessageInput } from './message-input';
 import ChatHeader from './chat-header';
 import { useModelStore } from '~/app/store/useModelStore';
+import Welcome from './welcome';
 
 export default function Chat({
   id,
@@ -29,15 +30,20 @@ export default function Chat({
 
   return (
       <div className="max-h-screen h-full p-4">
-        {/* messages container */}
           <div className="flex flex-col h-full w-full ">
+            {/* header */}
             <div className='flex items-center'>            
               <ChatHeader />
             </div>
-            <div className="flex flex-col overflow-y-auto max-w-[736px] h-full w-full mx-auto">
-              {messages.map(m => (
-                <ChatMessage className='mb-4' key={m.id} role={m.role} content={m.content}id={m.id} />
-              ))}
+            {/* messages container */}
+            <div className={`flex flex-col overflow-y-auto max-w-[736px] h-full w-full mx-auto ${messages.length === 0 && 'place-content-center'}`}>
+              {messages.length === 0 ? (
+                <Welcome />
+              ) : (
+                messages.map(m => (
+                  <ChatMessage className='mb-4' key={m.id} role={m.role} content={m.content}id={m.id} showTimeStamp={true} />
+                ))
+              )}
             </div>
             {/* input container */}
             <form onSubmit={handleSubmit} className="flex flex-col items-center gap-2 max-w-[768px] mx-auto w-full bg-white">
