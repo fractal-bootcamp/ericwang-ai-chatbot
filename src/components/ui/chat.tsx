@@ -7,15 +7,19 @@ import { MessageInput } from './message-input';
 import ChatHeader from './chat-header';
 import { useModelStore } from '~/app/store/useModelStore';
 import Welcome from './welcome';
+import { useRouter } from 'next/navigation';
+import { api } from '~/trpc/react';
 
 export default function Chat({
-  id,
+  id: chatId,
   initialMessages,
-}: { id?: string | undefined; initialMessages?: Message[] } = {}) {
+}: { id?: string; initialMessages?: Message[] } = {}) {
+  const router = useRouter();
   const { model } = useModelStore()
-  const { input, handleInputChange, handleSubmit, messages } = useChat({
+  const utils = api.useUtils();
+  const { input, handleInputChange, handleSubmit, messages, id } = useChat({
     maxSteps: 5,
-    id,
+    id: chatId,
     initialMessages, 
     sendExtraMessageFields: true,
     body: { model },
@@ -23,8 +27,10 @@ export default function Chat({
       prefix: 'msgc',
       size: 16,
     }),
-    onFinish: (message) => {
-      console.log('onFinish', message);
+    async onFinish (message) {
+      // redirect to the chat page, and invalidate cache
+      router.push(`/chat/${id}`, {scroll: false})
+      await utils.session.getAll.invalidate();
     },
   });
 

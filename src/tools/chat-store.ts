@@ -38,6 +38,14 @@ export async function saveChat({
     messages: Message[];
   }): Promise<void> {
 
+    // if the session id does not already exist, create it.
+    await db.transaction(async (tx) => {
+        await tx.insert(session).values({
+            id,
+            createdAt: new Date(),
+        }).onConflictDoNothing();
+    });
+
     // Insert each message into the database
     for (const message of messages) {
       await db.insert(messagesTable).values({
@@ -55,6 +63,7 @@ export async function saveChat({
       });
     }
   }
+
   export async function deleteChat(id: string): Promise<void> {
     await db.delete(session).where(eq(session.id, id));
   }

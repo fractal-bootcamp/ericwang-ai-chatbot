@@ -21,7 +21,6 @@ export const session = createTable(
       .notNull(),
     updatedAt: int("updated_at", { mode: "timestamp" }).$onUpdate(
       () => new Date()
-      
     ),
   },
   (session) => ({}) 
